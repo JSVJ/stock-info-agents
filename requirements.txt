@@ -1,0 +1,9 @@
+langgraph
+langchain
+langchain-mcp-adapters
+langchain-google-genai
+mcp
+yfinance
+feedparser
+gradio
+python-dotenv
