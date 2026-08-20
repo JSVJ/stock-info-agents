@@ -2,6 +2,10 @@
 
 Wraps the same compiled LangGraph graph used by main.py behind a small
 web form: ticker in, report out. Spaces runs this file directly.
+
+Runs on ZeroGPU hardware: @spaces.GPU only supports sync functions and
+routes each call to an isolated worker, so the graph is rebuilt fresh
+per request instead of cached across calls.
 """
 
 import asyncio
@@ -14,25 +18,18 @@ from graph.build import build_graph
 
 load_dotenv()
 
-_app = None
-_app_lock = asyncio.Lock()
 
-
-async def get_app():
-    global _app
-    async with _app_lock:
-        if _app is None:
-            _app = await build_graph()
-    return _app
+async def _run_report_async(ticker: str) -> str:
+    app = await build_graph()
+    result = await app.ainvoke({"ticker": ticker})
+    return result.get("report", "(no report generated)")
 
 
 @spaces.GPU
-async def run_report(ticker: str) -> str:
+def run_report(ticker: str) -> str:
     if not ticker or not ticker.strip():
         return "Please enter a ticker symbol."
-    app = await get_app()
-    result = await app.ainvoke({"ticker": ticker})
-    return result.get("report", "(no report generated)")
+    return asyncio.run(_run_report_async(ticker))
 
 
 demo = gr.Interface(
