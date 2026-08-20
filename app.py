@@ -7,6 +7,7 @@ web form: ticker in, report out. Spaces runs this file directly.
 import asyncio
 
 import gradio as gr
+import spaces
 from dotenv import load_dotenv
 
 from graph.build import build_graph
@@ -25,6 +26,7 @@ async def get_app():
     return _app
 
 
+@spaces.GPU
 async def run_report(ticker: str) -> str:
     if not ticker or not ticker.strip():
         return "Please enter a ticker symbol."

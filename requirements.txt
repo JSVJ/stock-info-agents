@@ -6,4 +6,5 @@ mcp
 yfinance
 feedparser
 gradio
+spaces
 python-dotenv
